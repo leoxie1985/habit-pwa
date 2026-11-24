@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>每日打卡</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="每日打卡">
+<meta name="theme-color" content="#22c5b4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ===== 今日页 ===== -->
+  <section class="view active" id="view-today">
+    <header class="nav">
+      <div class="nav-date">
+        <div class="nav-week" id="today-weekday"></div>
+        <div class="nav-full" id="today-date"></div>
+      </div>
+      <div class="ring" id="today-ring" title="今日完成度">
+        <svg viewBox="0 0 44 44">
+          <circle class="ring-bg" cx="22" cy="22" r="18"></circle>
+          <circle class="ring-fg" id="ring-fg" cx="22" cy="22" r="18"></circle>
+        </svg>
+        <span class="ring-text" id="ring-text">0%</span>
+      </div>
+    </header>
+
+    <main class="scroll">
+      <div class="hero" id="today-hero"></div>
+      <div class="section-head"><span>今日习惯</span><button class="link-btn" id="add-habit-btn">＋ 新建</button></div>
+      <ul class="habit-list" id="today-list"></ul>
+      <div class="empty" id="today-empty" hidden>还没有习惯，点「＋ 新建」添加第一个吧。</div>
+      <div class="quota" id="today-quota" hidden></div>
+    </main>
+  </section>
+
+  <!-- ===== 统计页 ===== -->
+  <section class="view" id="view-stats">
+    <header class="nav"><div class="nav-title">数据统计</div></header>
+    <main class="scroll">
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">最长连续天数</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">本周完成</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-rate">0%</div><div class="stat-label">本周完成率</div></div>
+      </div>
+      <div class="section-head"><span>近 28 天热力</span></div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heat-legend"><span id="heat-label">打卡强度</span></div>
+      <div class="section-head"><span>各习惯本周完成</span></div>
+      <div class="rank-list" id="rank-list"></div>
+      <div class="empty" id="stats-empty" hidden>暂无数据，先去今日页打个卡。</div>
+    </main>
+  </section>
+
+  <!-- ===== 我的页 ===== -->
+  <section class="view" id="view-me">
+    <header class="nav"><div class="nav-title">我的</div></header>
+    <main class="scroll">
+      <div class="profile">
+        <img class="profile-icon" src="icons/apple-touch-icon.png" alt="">
+        <div>
+          <div class="profile-name">每日打卡</div>
+          <div class="profile-sub" id="profile-count">0 个习惯</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">外观</div>
+        <div class="setting-row">
+          <span>深色模式</span>
+          <div class="seg" id="theme-seg">
+            <button data-theme="auto">跟随</button>
+            <button data-theme="light">浅色</button>
+            <button data-theme="dark">深色</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">管理</div>
+        <div class="setting-row tap" id="edit-list-btn"><span>编辑习惯列表</span><span class="chev">›</span></div>
+        <div class="setting-row tap" id="export-btn"><span>导出打卡数据</span><span class="chev">›</span></div>
+        <div class="setting-row tap" id="reset-btn"><span class="danger">重置所有数据</span><span class="chev">›</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">关于</div>
+        <div class="setting-row"><span>版本</span><span class="muted">PWA Demo 1.0</span></div>
+        <div class="setting-row"><span>数据存储</span><span class="muted">本机离线</span></div>
+      </div>
+
+      <div class="tip" id="install-tip">
+        💡 用 Safari 打开本页，点底部分享按钮 →「添加到主屏幕」即可像原生 App 一样离线使用。
+      </div>
+    </main>
+  </section>
+
+  <!-- ===== 底部 Tab ===== -->
+  <nav class="tabbar">
+    <button class="tab active" data-view="today"><span class="tab-i">✓</span><span>今日</span></button>
+    <button class="tab" data-view="stats"><span class="tab-i">📊</span><span>统计</span></button>
+    <button class="tab" data-view="me"><span class="tab-i">👤</span><span>我的</span></button>
+  </nav>
+</div>
+
+<!-- ===== 新建/编辑习惯 弹层 ===== -->
+<div class="modal" id="habit-modal">
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="cancel" id="habit-cancel">取消</button>
+      <div class="sheet-title" id="habit-modal-title">新建习惯</div>
+      <button class="save" id="habit-save">保存</button>
+    </div>
+    <div class="sheet-body">
+      <label class="field"><span>名称</span><input id="habit-name" type="text" maxlength="20" placeholder="例如：喝水 8 杯"></label>
+      <label class="field"><span>目标</span><input id="habit-goal" type="number" min="1" max="50" value="1"><em>次 / 天</em></label>
+      <div class="field-block">
+        <span class="field-label">图标</span>
+        <div class="opt-row" id="icon-opts"></div>
+      </div>
+      <div class="field-block">
+        <span class="field-label">颜色</span>
+        <div class="opt-row" id="color-opts"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 通用确认弹层 ===== -->
+<div class="confirm" id="confirm">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-text" id="confirm-text"></div>
+    <div class="confirm-actions">
+      <button class="c-cancel">取消</button>
+      <button class="c-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
